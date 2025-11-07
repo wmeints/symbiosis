@@ -1,5 +1,7 @@
 # Symbiosis Gateway
 
+[![CI](https://github.com/wmeints/symbiosis/actions/workflows/ci.yml/badge.svg)](https://github.com/wmeints/symbiosis/actions/workflows/ci.yml)
+
 Welcome to Symbiosis, an open-source AI gateway. The goal of this project is
 to build a centralized system to connect large language models and image
 generation models to applications.
