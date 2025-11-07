@@ -60,6 +60,19 @@ Run the following command to synchronize the project dependencies:
 uv sync
 ```
 
+### Step 4: Install agent OS
+
+We use Agent OS for spec-driven development with Claude Code.
+You can install the scripts for this using the following command:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/buildermethods/agent-os/main/scripts/base-install.sh | bash
+```
+
+Make sure to familiarize yourself with [the setup of this
+tool](https://buildermethods.com/agent-os) before using spec-driven development
+to write features for the project.
+
 ## :wrench: Making changes
 
 Please use Pull Requests to submit changes in the project! We use PR builds
@@ -67,7 +80,7 @@ to verify changes before updating the main branch. We want our main branch
 to be publishable as much as posisble.
 
 You are welcome to submit multiple commits in one PR. In fact, we recommend it.
-The easier it is to read the commit messages, the better :-)
+The easier it is to read the commit messages, the better!
 
 We have a few common tasks that help you maintain the code without too much
 fuss. The order in which you run these commands doesn't really matter.
