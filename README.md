@@ -1,4 +1,4 @@
-# Symbiosis
+# Symbiosis Gateway
 
 Welcome to Symbiosis, an open-source AI gateway. The goal of this project is
 to build a centralized system to connect large language models and image
