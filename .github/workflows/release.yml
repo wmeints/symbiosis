@@ -37,75 +37,25 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Generate release notes
-        id: release_notes
+      - name: Generate changelog with script
         run: |
-          # Get the previous tag
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+          set -euo pipefail
+          echo "Generating changelog via scripts/generate_changelog.py"
+          python scripts/generate_changelog.py || true
 
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # If no previous tag, use all commits
-            COMMIT_RANGE=""
-          else
-            COMMIT_RANGE="${PREVIOUS_TAG}..${GITHUB_REF_NAME}"
+          # Fallback: if the script didn't create a changelog (e.g., no commits matched), create a minimal one
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "No conventional commit entries were found for this release." >> CHANGELOG.md
           fi
-
-          # Generate release notes from conventional commits
-          {
-            echo "RELEASE_NOTES<<EOF"
-            echo "## What's Changed"
-            echo ""
-
-            # Features
-            FEATURES=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^feat" --grep="^feature" --extended-regexp)
-            if [ -n "$FEATURES" ]; then
-              echo "### Features"
-              echo "$FEATURES" | sed 's/^feat\(([^)]*)\)\?:\s*/- /'
-              echo ""
-            fi
-
-            # Bug Fixes
-            FIXES=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^fix")
-            if [ -n "$FIXES" ]; then
-              echo "### Bug Fixes"
-              echo "$FIXES" | sed 's/^fix\(([^)]*)\)\?:\s*/- /'
-              echo ""
-            fi
-
-            # Performance Improvements
-            PERF=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^perf")
-            if [ -n "$PERF" ]; then
-              echo "### Performance Improvements"
-              echo "$PERF" | sed 's/^perf\(([^)]*)\)\?:\s*/- /'
-              echo ""
-            fi
-
-            # Documentation
-            DOCS=$(git log $COMMIT_RANGE --pretty=format:"%s" --grep="^docs")
-            if [ -n "$DOCS" ]; then
-              echo "### Documentation"
-              echo "$DOCS" | sed 's/^docs\(([^)]*)\)\?:\s*/- /'
-              echo ""
-            fi
-
-            # Other Changes
-            OTHER=$(git log $COMMIT_RANGE --pretty=format:"%s" --invert-grep --grep="^feat" --grep="^feature" --grep="^fix" --grep="^perf" --grep="^docs" --grep="^chore" --grep="^style" --grep="^refactor" --grep="^test" --grep="^build" --grep="^ci" --extended-regexp)
-            if [ -n "$OTHER" ]; then
-              echo "### Other Changes"
-              echo "$OTHER" | sed 's/^/- /'
-              echo ""
-            fi
-
-            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${GITHUB_REF_NAME}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           generate_release_notes: false
-          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          body_path: CHANGELOG.md
           files: |
             dist/*.whl
             dist/*.tar.gz
