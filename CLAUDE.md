@@ -29,4 +29,4 @@ image generation models to applications.
 
 ## Building the package
 
-- Use `uv build` to build packages locally
+- Use `uv build` to build packages locally. Note: This produces a package without versioning, we only publish packages through the github workflow.
