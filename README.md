@@ -22,10 +22,10 @@ applications.
 
 ## Getting started
 
-1. Clone this repository 
-2. Run the command `uv run symbiosis`
+TODO: Describe how to run the application.
 
 ## Documentation
 
+- [Contributor guide](./CONTRIBUTING.md)
 - [Product documentation](./docs/product/README.md)
 - [Architecture documentation](./docs/architecture/README.md)
