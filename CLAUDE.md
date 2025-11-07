@@ -1,8 +1,8 @@
-# Symbiosis
+# Symbiosis Gateway
 
-Symbiosis is an open-source AI gateway written in Python. The goal of this
-project is to build a centralized system to connect large language models and
-image generation models to applications.
+Symbiosis Gateway is an open-source AI gateway written in Python. The goal of
+this project is to build a centralized system to connect large language models
+and image generation models to applications.
 
 ## Used technology
 
@@ -27,6 +27,11 @@ image generation models to applications.
 - Always run unit-tests with `uv run pytest` after you've implemented changes in the main application or the tests
 - Always run the linter with `uv run ruff check --fix` after you've implemented changes in the main application or tests
 
+## Committing changes to GIT
+
+- Use conventional commit messages when committing changes
+- Commit relevant changes together in one commit
+
 ## Building the package
 
-- Use `uv build` to build packages locally. Note: This produces a package without versioning, we only publish packages through the github workflow.
+- Use `uv build` to build packages locally. Note: This produces a package without versioning, we only publish packages through the github workflow. 
