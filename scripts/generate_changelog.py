@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Generate CHANGELOG.md for a release.
-
-Behavior:
-    - If at a tagged commit (HEAD matches latest tag), generate changes between the previous tag and the latest tag.
-    - If not at a tagged commit, generate changes since the latest tag up to HEAD (unreleased changes preview).
-    - If only one tag exists and we are at it, include all history reachable from that tag.
-    - If there are no tags, include all commits.
-"""
+"""Generate CHANGELOG.md for a release."""
 
 import re
 import subprocess
@@ -17,7 +10,7 @@ from pathlib import Path
 
 def run_git_command(args: list[str]) -> str:
     """Run a git command and return its output."""
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603
         ["git"] + args,
         capture_output=True,
         text=True,
@@ -63,12 +56,10 @@ def determine_commit_range() -> tuple[str | None, str | None, str]:
     if head == latest_hash:
         if previous:
             return previous, latest, f"{previous}..{latest}"
-        else:
-            # Only one tag; using just the tag as range includes all its reachable commits
-            return None, latest, latest
-    else:
-        # Not at a tag; treat as unreleased changes since latest
-        return latest, None, f"{latest}..HEAD"
+        # Only one tag; using just the tag as range includes all its reachable commits
+        return None, latest, latest
+    # Not at a tag; treat as unreleased changes since latest
+    return latest, None, f"{latest}..HEAD"
 
 
 def get_commits_for_range(commit_range: str) -> list[dict[str, str]]:
@@ -84,13 +75,15 @@ def get_commits_for_range(commit_range: str) -> list[dict[str, str]]:
                 continue
             parts = line.split("|||")
             if len(parts) >= 5:
-                commits.append({
-                    "hash": parts[0],
-                    "subject": parts[1],
-                    "body": parts[2],
-                    "author": parts[3],
-                    "date": parts[4],
-                })
+                commits.append(
+                    {
+                        "hash": parts[0],
+                        "subject": parts[1],
+                        "body": parts[2],
+                        "author": parts[3],
+                        "date": parts[4],
+                    }
+                )
         return commits
     except subprocess.CalledProcessError:
         return []
@@ -133,7 +126,9 @@ def parse_conventional_commit(commit: dict[str, str]) -> dict[str, str]:
     }
 
 
-def group_commits_by_type(commits: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
+def group_commits_by_type(
+    commits: list[dict[str, str]],
+) -> dict[str, list[dict[str, str]]]:
     """Group commits by their type."""
     grouped = defaultdict(list)
 
@@ -151,7 +146,11 @@ def format_commit_entry(commit: dict[str, str]) -> str:
     return f"- {scope_text}{commit['description']}{breaking_text} ({commit['hash']})"
 
 
-def generate_changelog(grouped_commits: dict[str, list[dict[str, str]]], previous_tag: str | None, latest_tag: str | None) -> str:
+def generate_changelog(
+    grouped_commits: dict[str, list[dict[str, str]]],
+    previous_tag: str | None,
+    latest_tag: str | None,
+) -> str:
     """Generate the changelog markdown content."""
     # Type labels and their order
     type_labels = {
@@ -185,7 +184,7 @@ def generate_changelog(grouped_commits: dict[str, list[dict[str, str]]], previou
         "",
         f"## {version_text}",
         "",
-    f"*Generated on {datetime.now(timezone.utc).strftime('%Y-%m-%d')}*",
+        f"*Generated on {datetime.now(timezone.utc).strftime('%Y-%m-%d')}*",
         "",
     ]
 
@@ -196,10 +195,12 @@ def generate_changelog(grouped_commits: dict[str, list[dict[str, str]]], previou
         breaking_changes.extend([c for c in commits if c["breaking"]])
 
     if breaking_changes:
-        lines.extend([
-            "### ⚠️ BREAKING CHANGES",
-            "",
-        ])
+        lines.extend(
+            [
+                "### ⚠️ BREAKING CHANGES",
+                "",
+            ]
+        )
         for commit in breaking_changes:
             lines.append(format_commit_entry(commit))
         lines.append("")
@@ -208,10 +209,12 @@ def generate_changelog(grouped_commits: dict[str, list[dict[str, str]]], previou
     for commit_type, label in type_labels.items():
         if commit_type in grouped_commits:
             commits = grouped_commits[commit_type]
-            lines.extend([
-                f"### {label}",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"### {label}",
+                    "",
+                ]
+            )
             for commit in commits:
                 lines.append(format_commit_entry(commit))
             lines.append("")
@@ -219,7 +222,7 @@ def generate_changelog(grouped_commits: dict[str, list[dict[str, str]]], previou
     return "\n".join(lines)
 
 
-def filter_commits(commits: list[dict[str,str]]) -> list[dict[str,str]]:
+def filter_commits(commits: list[dict[str, str]]) -> list[dict[str, str]]:
     """Filter out commits that should not be included in the changelog."""
     filtered = []
     for commit in commits:
@@ -230,13 +233,16 @@ def filter_commits(commits: list[dict[str,str]]) -> list[dict[str,str]]:
 
     return filtered
 
+
 def main() -> None:
     """Generate the changelog."""
     print("🔍 Generating changelog...")
 
     previous_tag, latest_tag, commit_range = determine_commit_range()
     if latest_tag and previous_tag:
-        print(f"📌 Release context: latest tag {latest_tag}, previous tag {previous_tag}")
+        print(
+            f"📌 Release context: latest tag {latest_tag}, previous tag {previous_tag}"
+        )
     elif latest_tag and not previous_tag:
         print(f"📌 Single tag context: {latest_tag} (first release)")
     elif previous_tag and not latest_tag:
