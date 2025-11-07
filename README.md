@@ -24,7 +24,10 @@ applications.
 
 ## :rocket: Getting started
 
-TODO: Describe how to run the application.
+- `pip install symbiosis-gateway`
+- `symbiosis`
+
+Use `symbiosis --help` to display help information.
 
 ## :book: Documentation
 
