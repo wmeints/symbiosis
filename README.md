@@ -4,7 +4,7 @@ Welcome to Symbiosis, an open-source AI gateway. The goal of this project is
 to build a centralized system to connect large language models and image
 generation models to applications.
 
-## Goals for the project
+## :dart: Goals for the project
 
 ### Objective: Provide a centralized environment to access LLMs
 
@@ -20,11 +20,11 @@ also quite hard to get right. By providing teams with a standardized approach we
 lower the burden to secure applications by sharing experience across
 applications.
 
-## Getting started
+## :rocket: Getting started
 
 TODO: Describe how to run the application.
 
-## Documentation
+## :book: Documentation
 
 - [Contributor guide](./CONTRIBUTING.md)
 - [Product documentation](./docs/product/README.md)
