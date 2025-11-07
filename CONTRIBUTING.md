@@ -1,6 +1,19 @@
 # Contribution guide
 
-## Preparing your environment 
+Welcome to the Symbiosis project and thanks for contributing to our project!
+We've made this guide to help you setting up your development environment and
+contributing changes with as little fuss as possible. We value speed and
+iteration. The information here should help you get there faster!
+
+We cover the following topics in this guide:
+
+- [Preparing your environment](#preparing-your-environment)
+- [Making changes](#making-changes)
+- [Committing changes](#committing-changes)
+
+Let's get you started.
+
+## :computer: Preparing your environment
 
 Before you can start working on the code, make sure you have the prerequisites
 available on your machine. Then follow these steps to configure your development
@@ -47,7 +60,7 @@ Run the following command to synchronize the project dependencies:
 uv sync
 ```
 
-## Making changes
+## :wrench: Making changes
 
 Please use Pull Requests to submit changes in the project! We use PR builds
 to verify changes before updating the main branch. We want our main branch
@@ -75,7 +88,7 @@ You can run unit-tests with the following command:
 uv run pytest
 ```
 
-## Committing changes
+## :ship: Committing changes
 
 We use conventional commits so we can generate release notes automatically without
 human intervention. We have a pre-commit hook to help you follow the standard so
