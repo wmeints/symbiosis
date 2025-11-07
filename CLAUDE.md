@@ -11,6 +11,7 @@ image generation models to applications.
 - [Postgres](https://www.postgresql.org/) - For storing configuration data in the gateway
 - [FastAPI](https://fastapi.tiangolo.com/) - For building the REST interface of the application
 - [SQLModel](https://sqlmodel.tiangolo.com/) - For interacting with the postgres database from the application
+- [Typer](https://typer.tiangolo.com/) - For the CLI interface of the application
 - [Pytest](https://docs.pytest.org/en/stable/) - For running unit-tests in the application
 - [Ruff](https://astral.sh/ruff) - Linter and formatter used to verify and format the code for both the main application and the tests
 
