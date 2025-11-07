@@ -1,5 +1,5 @@
 [project]
-name = "symbiosis"
+name = "sybmiosis-gateway"
 dynamic = ["version"]
 description = "An open-source AI gateway"
 readme = "README.md"
