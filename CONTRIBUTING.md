@@ -170,7 +170,7 @@ Check the [Agent OS write spec
 documentation](https://buildermethods.com/agent-os/write-spec) For more control
 over this step.
 
-### Step 3: Create tasks
+#### Step 3: Create tasks
 
 In the third step, you can split the specification in implementation tasks.
 Use the `/agent-os:create-tasks` prompt to perform this step.
@@ -180,7 +180,7 @@ documentation](https://buildermethods.com/agent-os/create-tasks) contains
 information on how to get more control over this step in case the output isn't
 what you expected.
 
-### Step 4: Implement
+#### Step 4: Implement
 
 You have two options at this point:
 
