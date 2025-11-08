@@ -133,3 +133,63 @@ Use the final line in your commit message for closing issues.
 
 You can learn more about conventional commits
 [on their website](https://www.conventionalcommits.org/en/v1.0.0/#summary).
+
+## :factory: Spec-driven development
+
+We use AI coding agents to build this project. Specifically, we use Claude Code
+with [Agent OS](https://buildermethods.com/agent-os). This requires a bit of
+work on your part if you want to write code using agents.
+
+### Before you start
+
+Make sure to review the output at every single step! While agents are a great
+help, they're also limited. Some output will not make sense and should be fixed.
+Another great tip here is to commit changes in between steps. This way, you can
+go back and try again.
+
+### The workflow
+
+#### Step 1: Shape specification
+
+When you start a new feature or change in the code, run the
+`/agent-os:shape-spec` prompt to shape the specification for your change. Follow
+the instructions from the agent and you should end up with an initial
+specification of the change. 
+
+Please follow [the Agent OS shape spec
+documentation](https://buildermethods.com/agent-os/shape-spec) if you find that
+the agent produces invalid responses. You can run the shape-spec prompts in
+steps for more control.
+
+#### Step 2: Write specification
+
+In the second step, you can create a detailed specification for the agent. Use
+the `/agent-os:write-spec` prompt in Claude Code to refine the specification.
+
+Check the [Agent OS write spec
+documentation](https://buildermethods.com/agent-os/write-spec) For more control
+over this step.
+
+### Step 3: Create tasks
+
+In the third step, you can split the specification in implementation tasks.
+Use the `/agent-os:create-tasks` prompt to perform this step.
+
+The [Create tasks
+documentation](https://buildermethods.com/agent-os/create-tasks) contains
+information on how to get more control over this step in case the output isn't
+what you expected.
+
+### Step 4: Implement
+
+You have two options at this point:
+
+1. You implement the tasks using the
+   [`/agent-os:implement-tasks`](https://buildermethods.com/agent-os/implement-tasks)
+   prompt for simple changes.
+2. Or, you use the
+   [`/agent-os:orchestrate-tasks`](https://buildermethods.com/agent-os/orchestrate-tasks)
+   for more complex changes.
+
+It's good to know that we have claude sub-agents enabled so the orchestration
+is automatically parallelized when it makes sense.
