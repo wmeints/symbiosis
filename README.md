@@ -1,4 +1,4 @@
-# Symbiosis Gateway
+# Symbiosis AI Gateway
 
 [![CI](https://github.com/wmeints/symbiosis/actions/workflows/ci.yml/badge.svg)](https://github.com/wmeints/symbiosis/actions/workflows/ci.yml)
 
