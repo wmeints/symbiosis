@@ -26,6 +26,7 @@ and image generation models to applications.
 
 - Always run unit-tests with `uv run pytest` after you've implemented changes in the main application or the tests
 - Always run the linter with `uv run ruff check --fix` after you've implemented changes in the main application or tests
+- Document code using pydoc strings following the numpy standards
 
 ## Committing changes to GIT
 
