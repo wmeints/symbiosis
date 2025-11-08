@@ -47,7 +47,7 @@ def authenticated_user(
     authorization: Annotated[str, Header()],
     token_validator: Annotated[TokenValidator, Depends(get_token_validator)],
 ) -> AuthenticatedUser:
-    """Extract and the authenticated user from the request.
+    """Extract and validate the authenticated user from the request.
 
     Parameters
     ----------
@@ -60,15 +60,23 @@ def authenticated_user(
     -------
     AuthenticatedUser
         The authenticated user object.
+
+    Raises
+    ------
+    HTTPException
+        If the authorization header is missing or invalid.
     """
-    if authorization.startswith("Bearer "):
-        token = authorization[len("Bearer ") :]
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Bearer token required"
+        )
 
-        try:
-            token_payload = token_validator.validate(token)
-        except InvalidTokenError as err:
-            raise HTTPException(status_code=401, detail="Invalid token") from err
+    token = authorization[len("Bearer ") :]
 
-        return AuthenticatedUser(claims=token_payload)
+    try:
+        token_payload = token_validator.validate(token)
+    except InvalidTokenError as err:
+        raise HTTPException(status_code=401, detail="Invalid token") from err
 
-    return None
+    return AuthenticatedUser(claims=token_payload)

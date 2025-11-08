@@ -62,3 +62,77 @@ def test_authenticated_user_happy_flow(
     # Verify email is present (we set it in the Keycloak fixture)
     assert "email" in claims
     assert claims["email"] == "test-user@example.com"
+
+
+def test_authenticated_user_missing_bearer_prefix(token_validator: TokenValidator):
+    """
+    Test that non-Bearer authorization scheme returns 401.
+
+    This test verifies that when the Authorization header doesn't start
+    with "Bearer ", the authenticated_user dependency returns a 401 error.
+
+    Args:
+        token_validator: TokenValidator configured for the test Keycloak instance
+    """
+    # Create a test FastAPI app
+    app = FastAPI()
+
+    # Override the token validator dependency with our test fixture
+    app.dependency_overrides[get_token_validator] = lambda: token_validator
+
+    # Create a test endpoint that uses the authenticated_user dependency
+    @app.get("/protected")
+    def protected_endpoint(
+        user: AuthenticatedUser = Depends(authenticated_user),  # noqa: B008
+    ):
+        return {"user": user.claims}
+
+    # Create a test client
+    client = TestClient(app)
+
+    # Make a request with a non-Bearer authorization scheme
+    response = client.get(
+        "/protected",
+        headers={"Authorization": "Basic dGVzdDp0ZXN0"}
+    )
+
+    # Assert the response is 401 Unauthorized
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Bearer token required"
+
+
+def test_authenticated_user_invalid_token(token_validator: TokenValidator):
+    """
+    Test that an invalid token returns 401.
+
+    This test verifies that when an invalid JWT token is provided,
+    the authenticated_user dependency returns a 401 error.
+
+    Args:
+        token_validator: TokenValidator configured for the test Keycloak instance
+    """
+    # Create a test FastAPI app
+    app = FastAPI()
+
+    # Override the token validator dependency with our test fixture
+    app.dependency_overrides[get_token_validator] = lambda: token_validator
+
+    # Create a test endpoint that uses the authenticated_user dependency
+    @app.get("/protected")
+    def protected_endpoint(
+        user: AuthenticatedUser = Depends(authenticated_user),  # noqa: B008
+    ):
+        return {"user": user.claims}
+
+    # Create a test client
+    client = TestClient(app)
+
+    # Make a request with an invalid token
+    response = client.get(
+        "/protected",
+        headers={"Authorization": "Bearer invalid.token.here"}
+    )
+
+    # Assert the response is 401 Unauthorized
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
