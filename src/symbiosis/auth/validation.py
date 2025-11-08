@@ -20,10 +20,7 @@ class TokenValidator:
     _expected_issuer: str | None
 
     def __init__(
-        self,
-        discovery_url: str,
-        timeout: int = 3,
-        config_ttl: int = 3600
+        self, discovery_url: str, timeout: int = 3, config_ttl: int = 3600
     ) -> None:
         """Initialize the TokenValidator with the OIDC discovery URL.
 
@@ -116,9 +113,9 @@ class TokenValidator:
 
         # Decode and return only the payload (claims)
         decode_options = {
-            "verify_exp": True,  # Explicitly validate expiration
-            "verify_aud": True if self._expected_audience else False,
-            "verify_iss": True if self._expected_issuer else False,
+            "verify_exp": True,
+            "verify_aud": bool(self._expected_audience),
+            "verify_iss": bool(self._expected_issuer),
         }
 
         decode_kwargs = {

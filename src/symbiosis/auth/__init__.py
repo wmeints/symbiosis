@@ -3,7 +3,7 @@
 import os
 from typing import Annotated
 from jwt import InvalidTokenError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import HTTPException, Header, Depends
 from symbiosis.auth.validation import TokenValidator
 
@@ -17,7 +17,7 @@ class AuthenticatedUser(BaseModel):
         The JWT claims for the authenticated user.
     """
 
-    claims: dict = {}
+    claims: dict = Field(default_factory=dict)
 
 
 def get_token_validator() -> TokenValidator:
@@ -67,10 +67,7 @@ def authenticated_user(
         If the authorization header is missing or invalid.
     """
     if not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401,
-            detail="Bearer token required"
-        )
+        raise HTTPException(status_code=401, detail="Bearer token required")
 
     token = authorization[len("Bearer ") :]
 
