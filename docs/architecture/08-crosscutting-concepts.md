@@ -217,3 +217,170 @@ The authentication system uses FastAPI's dependency injection to allow easy test
 - **Testing**: Tests override `get_token_validator` to use a testcontainer-configured validator
 
 This pattern ensures production code can authenticate against a real OIDC provider while tests run against a controlled testcontainer environment.
+
+## Database Migrations
+
+### Overview
+
+The gateway uses [Alembic](https://alembic.sqlalchemy.org/) for database schema migrations. Alembic is integrated with SQLModel to provide automatic migration generation based on model changes and manual migration support for complex schema changes.
+
+### Configuration
+
+#### Database Connection
+
+The database connection string is read from the `DATABASE_URL` environment variable. This variable must be set before running migrations or starting the application.
+
+**Format**: `postgresql://user:password@host:port/database`
+
+**Example**:
+```bash
+export DATABASE_URL="postgresql://symbiosis:password@localhost:5432/symbiosis"
+```
+
+#### Alembic Configuration Files
+
+The migration system consists of several key files:
+
+- **`alembic.ini`**: Main Alembic configuration file. Configured to use `DATABASE_URL` from environment variables.
+- **`alembic/env.py`**: Alembic environment configuration. Imports SQLModel metadata and configures both online and offline migration modes.
+- **`alembic/versions/`**: Directory containing migration scripts. Each migration is versioned and tracked.
+- **`src/symbiosis/database.py`**: Database configuration module that exports SQLModel metadata for use by Alembic.
+
+#### Ruff Integration
+
+Migration scripts are automatically formatted using Ruff through Alembic's post-write hooks. This ensures all generated migration files follow the project's code style guidelines.
+
+### Running Migrations
+
+#### Upgrade to Latest Version
+
+To apply all pending migrations and upgrade the database to the latest schema:
+
+```bash
+symbiosis database migrate
+```
+
+This command:
+1. Verifies the `DATABASE_URL` environment variable is set
+2. Runs all pending migrations in order
+3. Updates the `alembic_version` table to track the current schema version
+4. Provides clear error messages if migrations fail
+
+**Note**: The migrate command always upgrades to the latest version (`head` in Alembic terminology).
+
+### Creating New Migrations
+
+When you add, modify, or remove SQLModel models, you need to create a migration to update the database schema.
+
+#### Auto-generating Migrations
+
+Alembic can automatically detect changes to SQLModel models and generate migrations:
+
+```bash
+uv run alembic revision --autogenerate -m "description of changes"
+```
+
+**Example**:
+```bash
+uv run alembic revision --autogenerate -m "add projects table"
+```
+
+This will:
+1. Compare current SQLModel metadata with the database schema
+2. Generate a new migration file in `alembic/versions/`
+3. Automatically format the migration file using Ruff
+4. Include upgrade and downgrade functions
+
+#### Manual Migrations
+
+For complex changes that Alembic cannot auto-detect (like data migrations, custom indexes, or stored procedures), create a manual migration:
+
+```bash
+uv run alembic revision -m "description of changes"
+```
+
+Then edit the generated migration file to add your custom upgrade and downgrade logic.
+
+### Migration Files
+
+Each migration file contains:
+
+- **Revision identifier**: Unique ID for this migration
+- **Parent revision**: Previous migration in the chain
+- **Upgrade function**: SQL or Python code to apply the migration
+- **Downgrade function**: SQL or Python code to reverse the migration
+
+**Example migration**:
+```python
+"""add projects table
+
+Revision ID: abc123def456
+Revises:
+Create Date: 2025-11-09 14:30:00.000000
+
+"""
+from alembic import op
+import sqlalchemy as sa
+import sqlmodel
+
+# revision identifiers, used by Alembic.
+revision = 'abc123def456'
+down_revision = None
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.create_table(
+        'projects',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('name', sa.String(), nullable=False),
+        sa.Column('description', sa.String(), nullable=True),
+        sa.PrimaryKeyConstraint('id')
+    )
+
+
+def downgrade() -> None:
+    op.drop_table('projects')
+```
+
+### Best Practices
+
+1. **Always review auto-generated migrations**: Alembic's auto-detection is not perfect. Review generated migrations before applying them, especially for column renames or complex changes.
+
+2. **Test migrations before deployment**: Run migrations against a test database first to ensure they work correctly and don't cause data loss.
+
+3. **Write reversible migrations**: Always implement both `upgrade()` and `downgrade()` functions. This allows rolling back changes if needed.
+
+4. **Use descriptive migration messages**: Migration messages should clearly describe what the migration does (e.g., "add user roles table" not "update schema").
+
+5. **One logical change per migration**: Keep migrations focused on a single logical change. This makes them easier to understand, review, and rollback if needed.
+
+6. **Never modify existing migrations**: Once a migration has been applied to a production database, never modify it. Create a new migration to make additional changes.
+
+7. **Coordinate with deployments**: Ensure database migrations are run before deploying new application code that depends on schema changes.
+
+8. **Use transactions for safety**: Alembic runs migrations within transactions by default (for databases that support DDL transactions). This ensures migrations either complete fully or rollback entirely.
+
+### Integration with SQLModel
+
+The migration system is tightly integrated with SQLModel:
+
+- **Metadata Export**: `src/symbiosis/database.py` exports `SQLModel.metadata`, which contains all table definitions from SQLModel models.
+- **Auto-detection**: Alembic uses this metadata to compare against the current database schema and detect changes.
+- **Model-First Approach**: Define your schema using SQLModel models, then generate migrations to sync the database.
+
+**Workflow**:
+1. Create or modify SQLModel models in the application
+2. Generate a migration using `alembic revision --autogenerate`
+3. Review and test the generated migration
+4. Run `symbiosis database migrate` to apply the migration
+5. Commit the migration file to version control
+
+### Environment Variables
+
+The following environment variable is required for database operations:
+
+- **`DATABASE_URL`**: PostgreSQL connection string in the format `postgresql://user:password@host:port/database`
+
+**Security Note**: Never commit database credentials to version control. Use environment variables or secrets management in production.
