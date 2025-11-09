@@ -51,8 +51,26 @@ def create_db_engine() -> Engine:
     return create_engine(database_url, echo=False)
 
 
-# Engine instance for the application
-engine = create_db_engine()
+# Global engine instance (lazily initialized)
+_engine: Engine | None = None
+
+
+def get_engine() -> Engine:
+    """Get or create the database engine.
+
+    This function implements lazy initialization - the engine is only
+    created when first requested, not at import time.
+
+    Returns
+    -------
+    sqlalchemy.engine.Engine
+        The database engine instance.
+    """
+    global _engine
+    if _engine is None:
+        _engine = create_db_engine()
+    return _engine
+
 
 # SQLModel metadata for Alembic
 metadata = SQLModel.metadata
